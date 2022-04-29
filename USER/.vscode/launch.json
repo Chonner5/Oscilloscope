@@ -11,6 +11,19 @@
             "executable": "build\\OSCIALL\\USER.elf",
             "runToMain": true,
             "device": "STM32F103C8"
+        },
+        {
+            "cwd": "${workspaceRoot}",
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "stlink",
+            "servertype": "openocd",
+            "executable": "build\\OSCIALL\\USER.elf",
+            "runToMain": true,
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/<target-name>.cfg"
+            ]
         }
     ]
 }
