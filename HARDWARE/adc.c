@@ -87,12 +87,9 @@ static void Rheostat_ADC_Mode_Config(void)
     ADC_Handle.Init.NbrOfDiscConversion   = 0;
     //禁止外部边沿触发    
     ADC_Handle.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-    //使用软件触发，外部触发不用配置，注释掉即可
-
-
+    
 
     ADC_Handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-
 
 
     //数据右对齐	

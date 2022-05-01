@@ -52,6 +52,7 @@ static GUI_CONST_STORAGE GUI_LOGPALETTE Pal = {
 	1, // Has transparency
 	&Colors[0]};
 
+//下面就是全屏的按键图片
 static GUI_CONST_STORAGE unsigned char acEnlarge[] = {
 	_______X, X_______,
 	______XX, XX______,
@@ -182,22 +183,22 @@ static void _InitPoints(int NumPoints)
 	Close_ADC(); //数据储存时必须关掉ADC
 	_NumPoints = NumPoints;
 
-	for (i = 0; i <= NumPoints - 1; i++)
+	for (i = 0; i <= NumPoints - 1; i++)//尽量减少很大的循环，这样会让代码运行的效率更高
 	{
 		_aPoint[0][i].x = (int)(i * X_step);
 		t=(int)((float)(ADC_ConvertedValue[i] * 3300 / 4095));
 		_aPoint[0][i].y = t/(15 + Y_step) + 20; //数据传输处  这里的15+Y_step是缩小倍数 +20是上移动20
 
-
+		//下面的主要是赋值给signal_max让它好有个比较的对象。
 		if (i == 0)
 		{
-			signal_max = (int)(float)(ADC_ConvertedValue[i] * 3300 / 4095);
+			signal_max = t;
 		}
 
 		//提取最大值
-		if (i > 0 && (signal_max < (int)(float)(ADC_ConvertedValue[i] * 3300 / 4095))) //不能加等于如果加等于号会在信号最后一个最大值
+		if (i > 0 && (signal_max < t)) //不能加等于如果加等于号会在信号最后一个最大值
 		{
-			signal_max = (int)(float)(ADC_ConvertedValue[i] * 3300 / 4095);
+			signal_max = t;
 
 			//下面是同步触发的可以不要
 			if (signal_max > (int)(float)(ADC_ConvertedValue[i - 1] * 3300 / 4095))
@@ -246,7 +247,7 @@ static void _UserDraw(WM_HWIN hWin, int Stage)
 		GUI_DispStringInRectEx(acText, &Rect, GUI_TA_HCENTER, strlen(acText), GUI_ROTATE_CCW);
 	}
 }
-
+//这一部分是参考官方的代码
 static void _ForEach(WM_HWIN hWin, void *pData)
 {
 	int Id;
@@ -314,7 +315,7 @@ static void _ToggleFullScreenMode(WM_HWIN hDlg)
 }
 /*********************************************************************
  *
- *       _cbDialog
+ *       _cbDialog回调函数
  */
 static void _cbDialog(WM_MESSAGE *pMsg)
 {
@@ -380,8 +381,8 @@ static void _cbDialog(WM_MESSAGE *pMsg)
 		// Create and add vertical scale
 		//
 		_hScaleV = GRAPH_SCALE_Create(40, GUI_TA_RIGHT, GRAPH_SCALE_CF_VERTICAL, 20);
-		GRAPH_SCALE_SetOff(_hScaleV, 20);
-		GRAPH_SCALE_SetFactor(_hScaleV, 20);
+		GRAPH_SCALE_SetOff(_hScaleV, 100);
+		GRAPH_SCALE_SetFactor(_hScaleV, 41);
 		GRAPH_SCALE_SetTextColor(_hScaleV, GUI_RED);
 		GRAPH_AttachScale(hItem, _hScaleV);
 		//
@@ -616,19 +617,26 @@ void myGraphyt_demo(void)
 		GUI_DispStringAt("us", 460, 90);
 
 		GUI_DispStringAt("max", 405, 105);
-		GUI_DispStringAt("mv", 460, 105);
-		GUI_DispDecAt(signal_max, 430, 105, 4);
+		GUI_DispStringAt("mv", 460, 115);
+		GUI_GotoXY(405, 115);
+		GUI_DispSDec(signal_max*2-3300,5);
+		//GUI_DispDecAt(signal_max-3300, 430, 115, 4);
 		
-		GUI_DispStringAt("peroid", 405, 120);
-		GUI_GotoXY(405, 130);
+		GUI_DispStringAt("peroid", 405, 130);
+		GUI_GotoXY(405, 140);
 		GUI_DispFloat(peroid_test, 4);
-		GUI_DispStringAt("us", 460, 130);
+		GUI_DispStringAt("us", 460, 140);
+
+		GUI_DispStringAt("freq", 405, 155);
+		GUI_GotoXY(405, 165);
+		GUI_DispDecAt(1000000/peroid_test, 405, 165, 8);
+		GUI_DispStringAt("Hz", 460, 165);
 
 		
-		GUI_DispStringAt("V", 405, 150);
-		GUI_GotoXY(405, 160);
-		GUI_DispFloat(voltage_test, 4);
-		GUI_DispStringAt("mv", 460, 160);
+		GUI_DispStringAt("V", 405, 180);
+		GUI_GotoXY(405, 190);
+		GUI_DispFloat(voltage_test*2, 4);
+		GUI_DispStringAt("mv", 460, 190);
 
 
 		//刷新测量线数据
